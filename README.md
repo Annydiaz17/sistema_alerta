@@ -1,14 +1,14 @@
 # 📊 Sistema de Alerta Temprana — Saber Pro / TYT
 
-Dashboard interactivo para analizar resultados de pruebas diagnósticas Saber Pro y TYT. Clasifica estudiantes en riesgo, genera gráficas de análisis y permite exportar alertas por programa académico.
+Dashboard interactivo con **Streamlit** para analizar resultados de pruebas diagnósticas Saber Pro y TYT. Clasifica estudiantes en riesgo, genera gráficas de análisis y permite exportar alertas por programa académico.
 
 ## Funcionalidades
 
 - **Carga de datos**: Sube archivos Excel/CSV con resultados de pruebas diagnósticas
 - **Limpieza automática**: Maneja valores "IA" (inasistencia), rellena con mediana
 - **Detección de columnas**: Identifica automáticamente las columnas del Excel
-- **4 gráficas de análisis**: Boxplot por módulo, promedio por módulo, alertas, histograma
-- **Análisis por programa**: Boxplot + swarm dots filtrado por carrera
+- **5 gráficas interactivas** (Plotly): Boxplot, promedio, alertas, histograma, por programa
+- **Análisis por programa**: Boxplot + puntos individuales filtrado por carrera
 - **Niveles de desempeño**: Detecta y muestra Nivel 1-4 por módulo
 - **Alertas multicriteria**: Puntaje < 120, total < 130, o Nivel 1 en Lectura/Razonamiento
 - **Exportar Excel**: Un sheet por programa con estudiantes en riesgo
@@ -25,27 +25,25 @@ Dashboard interactivo para analizar resultados de pruebas diagnósticas Saber Pr
 
 ## Tech Stack
 
-- **Frontend**: React + Vite
-- **Gráficas**: SVG puro (sin dependencias)
-- **Excel**: SheetJS (xlsx) cargado desde CDN
+- **Streamlit** — UI interactiva
+- **Plotly** — Gráficas interactivas
+- **Pandas** — Procesamiento de datos
+- **OpenPyXL / XlsxWriter** — Lectura y exportación de Excel
 
 ## Instalación
 
 ```bash
-npm install
-npm run dev
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
-Abre [http://localhost:5173](http://localhost:5173) en tu navegador.
+Abre [http://localhost:8501](http://localhost:8501) en tu navegador.
 
-## Estructura del proyecto
+## Estructura
 
 ```
-├── constants/          # Constantes, colores, umbrales
-├── utils/              # Parser Excel, procesamiento, estadísticas, demo
-├── charts/             # 5 componentes SVG de gráficas
-├── components/         # UI: tabs, alertas, tabla, upload
-├── src/main.jsx        # Entry point de React
-├── SaberProDashboard.jsx  # Componente principal
-└── c_diagnostico.py    # Script Python original (Colab)
+├── app.py              ← Dashboard Streamlit (principal)
+├── requirements.txt    ← Dependencias Python
+├── c_diagnostico.py    ← Script Python original (Colab, referencia)
+└── README.md
 ```

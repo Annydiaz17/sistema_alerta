@@ -1,8 +1,10 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
 
 # IDE
 .vscode/
@@ -15,3 +17,6 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Streamlit
+.streamlit/secrets.toml
