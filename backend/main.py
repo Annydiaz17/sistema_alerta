@@ -10,6 +10,12 @@ import json
 import logging
 from datetime import datetime
 from typing import Optional
+import mimetypes
+
+# Fix para contenedores Docker "slim" que no traen /etc/mime.types
+mimetypes.add_type("application/javascript", ".js")
+mimetypes.add_type("text/css", ".css")
+mimetypes.add_type("image/svg+xml", ".svg")
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
