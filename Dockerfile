@@ -12,10 +12,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el backend
+# Copiar el código de la aplicación
 COPY backend/ ./backend/
+COPY frontend/ ./frontend/
 
-# Exponer el puerto que usa Cloud Run
+# Exponer el puerto que usa Render/Cloud Run
 EXPOSE 8080
 
 # Comando de inicio — escucha en 0.0.0.0:8080 (requerido por Cloud Run)
