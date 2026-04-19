@@ -1,0 +1,18 @@
+# Ignorar al construir la imagen Docker (reduce tamaño considerablemente)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.env
+.env.*
+.git/
+.gitignore
+.vscode/
+*.bat
+app.py
+c_diagnostico.py
+frontend/
+*.md
+*.xlsx

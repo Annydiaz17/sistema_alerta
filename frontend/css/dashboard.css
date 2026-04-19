@@ -1,0 +1,318 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SaberAnalítica — Dashboard (dashboard.css)
+   Layout del dashboard, gráficos, comparativos, filtros
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Layout del dashboard ────────────────────────────────────────────────── */
+.dashboard-page {
+  padding-top: calc(var(--navbar-h) + var(--space-6));
+  padding-bottom: var(--space-16);
+}
+
+.dashboard-header {
+  background: linear-gradient(135deg, var(--primary-900), var(--primary-700));
+  padding: var(--space-6) 0;
+  margin-bottom: var(--space-8);
+  color: white;
+}
+
+.dashboard-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.dashboard-title-block .page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: var(--space-1);
+}
+
+.dashboard-meta {
+  font-size: 0.82rem;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.dashboard-meta span::before {
+  content: '·';
+  margin-right: var(--space-3);
+}
+
+.dashboard-meta span:first-child::before { display: none; }
+
+.dashboard-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-export-pdf {
+  background: hsla(255,255,255,.15);
+  color: white;
+  border: 1px solid hsla(255,255,255,.3);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.btn-export-pdf:hover { background: hsla(255,255,255,.25); }
+
+.btn-export-excel {
+  background: white;
+  color: var(--primary-700);
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.btn-export-excel:hover { background: var(--primary-50); }
+
+/* ── Confianza banner ────────────────────────────────────────────────────── */
+.confianza-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.confianza-banner.Alto  { border-left: 4px solid var(--ok); }
+.confianza-banner.Medio { border-left: 4px solid var(--warn); }
+.confianza-banner.Bajo  { border-left: 4px solid var(--error); }
+
+.confianza-banner-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+.confianza-banner-body h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+  color: var(--text-primary);
+}
+
+.confianza-banner-body p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Gráficos ────────────────────────────────────────────────────────────── */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.chart-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Tabla comparativa ───────────────────────────────────────────────────── */
+.tabla-comparativa-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.tabla-comparativa {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.tabla-comparativa th {
+  background: var(--primary-700);
+  color: white;
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.tabla-comparativa td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.tabla-comparativa tbody tr:hover { background: var(--surface-2); }
+.tabla-comparativa tbody tr:last-child td { border-bottom: none; }
+
+.tabla-comparativa .nombre-grupo {
+  font-weight: 700;
+  color: var(--text-primary);
+  max-width: 240px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.celda-puntaje {
+  font-weight: 600;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.celda-puntaje.alto    { background: var(--nivel-4-bg); color: var(--nivel-4); }
+.celda-puntaje.medio-alto { background: var(--nivel-3-bg); color: var(--nivel-3); }
+.celda-puntaje.medio    { background: var(--nivel-2-bg); color: var(--nivel-2); }
+.celda-puntaje.bajo     { background: var(--nivel-1-bg); color: var(--nivel-1); }
+
+/* ── Mini barra de nivel para tablas ─────────────────────────────────────── */
+.nivel-mini-bar {
+  display: flex;
+  height: 5px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  min-width: 80px;
+  background: var(--border);
+}
+
+.nivel-mini-seg {
+  height: 100%;
+}
+
+/* ── Dashboard grid layouts ──────────────────────────────────────────────── */
+.dash-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.dash-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.dash-grid-sidebar {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+@media (max-width: 1100px) {
+  .dash-grid-2 { grid-template-columns: 1fr; }
+  .dash-grid-3 { grid-template-columns: 1fr; }
+  .dash-grid-sidebar { grid-template-columns: 1fr; }
+}
+
+/* ── Sección principal del dashboard ─────────────────────────────────────── */
+.dashboard-section {
+  margin-bottom: var(--space-8);
+}
+
+.dashboard-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--primary-100);
+  margin-bottom: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Alertas críticas ────────────────────────────────────────────────────── */
+.alerta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--error);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  transition: box-shadow var(--transition-fast);
+}
+.alerta-row:hover { box-shadow: var(--shadow-sm); }
+
+.alerta-id {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 60px;
+}
+
+.alerta-programa {
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alerta-puntaje {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--error);
+  min-width: 50px;
+  text-align: right;
+}
+
+.alerta-razones {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  min-width: 0;
+  flex: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Resumen circular (donut rápido) ─────────────────────────────────────── */
+.nivel-resumen {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.nivel-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.nivel-chip.n1 { background: var(--nivel-1-bg); color: var(--nivel-1); }
+.nivel-chip.n2 { background: var(--nivel-2-bg); color: var(--nivel-2); }
+.nivel-chip.n3 { background: var(--nivel-3-bg); color: var(--nivel-3); }
+.nivel-chip.n4 { background: var(--nivel-4-bg); color: var(--nivel-4); }

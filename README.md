@@ -1,49 +1,112 @@
-# 📊 Sistema de Alerta Temprana — Saber Pro / TYT
+# SaberAnalítica 🎓📊
 
-Dashboard interactivo con **Streamlit** para analizar resultados de pruebas diagnósticas Saber Pro y TYT. Clasifica estudiantes en riesgo, genera gráficas de análisis y permite exportar alertas por programa académico.
+**Sistema de diagnóstico inteligente para resultados Saber Pro**
 
-## Funcionalidades
+Carga, valida, limpia y analiza archivos Excel de resultados Saber Pro de forma automática. Genera un dashboard interactivo con gráficos, comparativos por programa y jornada, y diagnóstico con insights redactados en lenguaje claro.
 
-- **Carga de datos**: Sube archivos Excel/CSV con resultados de pruebas diagnósticas
-- **Limpieza automática**: Maneja valores "IA" (inasistencia), rellena con mediana
-- **Detección de columnas**: Identifica automáticamente las columnas del Excel
-- **5 gráficas interactivas** (Plotly): Boxplot, promedio, alertas, histograma, por programa
-- **Análisis por programa**: Boxplot + puntos individuales filtrado por carrera
-- **Niveles de desempeño**: Detecta y muestra Nivel 1-4 por módulo
-- **Alertas multicriteria**: Puntaje < 120, total < 130, o Nivel 1 en Lectura/Razonamiento
-- **Exportar Excel**: Un sheet por programa con estudiantes en riesgo
+---
 
-## Módulos evaluados
+## 🚀 Inicio rápido
 
-| Módulo | Umbral |
-|---|---|
-| Razonamiento Cuantitativo | 120 |
-| Lectura Crítica | 120 |
-| Competencias Ciudadanas | 120 |
-| Inglés | 120 |
-| Comunicación Escrita | 120 |
-
-## Tech Stack
-
-- **Streamlit** — UI interactiva
-- **Plotly** — Gráficas interactivas
-- **Pandas** — Procesamiento de datos
-- **OpenPyXL / XlsxWriter** — Lectura y exportación de Excel
-
-## Instalación
+### 1. Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
 ```
 
-Abre [http://localhost:8501](http://localhost:8501) en tu navegador.
+### 2. Iniciar el servidor
 
-## Estructura
+```bash
+# Desde la raíz del proyecto
+uvicorn backend.main:app --reload --port 8000
+```
+
+### 3. Abrir la aplicación
+
+Abre tu navegador en: **http://localhost:8000**
+
+O si prefieres Live Server en VS Code, abre `frontend/index.html`.
+
+---
+
+## 📁 Estructura del proyecto
 
 ```
-├── app.py              ← Dashboard Streamlit (principal)
-├── requirements.txt    ← Dependencias Python
-├── c_diagnostico.py    ← Script Python original (Colab, referencia)
-└── README.md
+sistema_alerta/
+├── backend/
+│   ├── main.py                    # FastAPI - rutas principales
+│   ├── config.py                  # Rangos ICFES y constantes configurables
+│   ├── modules/
+│   │   ├── detector.py            # Detecta hoja y columnas por estructura
+│   │   ├── validador.py           # Valida con 3 severidades
+│   │   ├── limpiador.py           # Limpieza sin imputación de medianas
+│   │   ├── transformador.py       # Recalcula puntajes y niveles
+│   │   └── motor_diagnostico.py   # Genera insights y diagnóstico
+│   └── utils/
+│       ├── exportador_excel.py    # Excel con 4 hojas
+│       └── exportador_pdf.py      # PDF con ReportLab
+├── frontend/
+│   ├── index.html                 # SPA shell
+│   ├── css/                       # Design system completo
+│   └── js/                        # Router, páginas y componentes
+└── requirements.txt
 ```
+
+---
+
+## ✅ Características principales
+
+- **Detección automática de hoja** por estructura de columnas (no por nombre)
+- **Valor "IA" tratado correctamente** como categoría especial ICFES, nunca como error
+- **Sin imputación de medianas** — los nulos se excluyen con transparencia
+- **Puntaje total siempre recalculado** desde datos crudos
+- **Niveles de desempeño recalculados** con tabla ICFES configurable en `config.py`
+- **Dashboard con filtros** por programa y jornada en tiempo real
+- **Nivel de confianza del diagnóstico** según calidad del archivo
+- **Exportación PDF y Excel** con 4 hojas organizadas
+- **IDs anonimizados** en todos los reportes de alertas
+- **Mensajes de error en español claro** para usuarios no técnicos
+
+---
+
+## 🔧 Configuración
+
+Los rangos oficiales del ICFES y umbrales son editables en `backend/config.py`:
+
+```python
+RANGOS_NIVELES = {
+    "razonamiento_cuantitativo": [(0,125,1),(126,153,2),(154,202,3),(203,300,4)],
+    "lectura_critica":           [(0,124,1),(125,157,2),(158,199,3),(200,300,4)],
+    ...
+}
+```
+
+---
+
+## 🌐 Despliegue online (Fase 1.5)
+
+**Backend** → [Render](https://render.com) o [Railway](https://railway.app)
+```bash
+# En render.com: Start Command
+uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+```
+
+**Frontend** → [Netlify](https://netlify.com) o [GitHub Pages]
+- Cambia `API_BASE` en `frontend/js/api.js` a la URL de producción.
+
+---
+
+## 🔥 Preparación para Firebase (Fase 2)
+
+Las funciones del backend se migrarán a Cloud Functions for Firebase.
+Los datos procesados se guardarán en Firestore (sin datos personales).
+Ver el plan completo en `implementation_plan.md`.
+
+---
+
+## 📝 Notas de privacidad
+
+- Los **números de identificación** nunca se exponen en URLs ni en reportes
+- El **procesamiento** ocurre en el servidor local
+- Los **reportes de alertas** usan IDs anonimizados (`EST-0001`)
+- No se guardan datos personales en `sessionStorage`

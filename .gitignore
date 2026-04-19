@@ -1,22 +1,44 @@
-# Python
+# ── Python ──────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
 .venv/
 venv/
 env/
+ENV/
 
-# IDE
+# ── IDE ──────────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.suo
+*.user
 
-# OS
+# ── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Environment
+# ── Variables de entorno y secretos ─────────────────────────────────────────
 .env
-.env.local
-
-# Streamlit
+.env.*
+*.env
 .streamlit/secrets.toml
+
+# ── Archivos Excel con datos reales (privacidad) ─────────────────────────────
+# Los archivos .xlsx con datos reales NO deben subirse al repositorio.
+# Solo se sube la plantilla de referencia si existe en frontend/assets/.
+*.xlsx
+*.xls
+!frontend/assets/plantilla_saber_pro.xlsx
+
+# ── Google Cloud / Firebase ──────────────────────────────────────────────────
+.firebaserc.local
+firebase-debug.log
+.gcloud/
+
+# ── Build / dist ─────────────────────────────────────────────────────────────
+dist/
+build/
+node_modules/

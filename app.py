@@ -319,7 +319,7 @@ def main():
 
     # -- Sidebar --
     with st.sidebar:
-        st.markdown("### 📊 Saber Pro")
+        st.markdown("### Saber Pro")
         st.markdown("**Alerta Temprana**")
         st.markdown("---")
         uploaded = st.file_uploader("Subir Excel / CSV", type=["xlsx","xls","csv"], key="file_up")
@@ -374,11 +374,11 @@ def main():
 
     with t1:
         c1,c2 = st.columns(2)
-        c1.plotly_chart(chart_boxplot(df_est), use_container_width=True)
-        c2.plotly_chart(chart_promedio(df_est), use_container_width=True)
+        c1.plotly_chart(chart_boxplot(df_est), width="stretch")
+        c2.plotly_chart(chart_promedio(df_est), width="stretch")
         c3,c4 = st.columns(2)
-        c3.plotly_chart(chart_alertas(df_est), use_container_width=True)
-        c4.plotly_chart(chart_histograma(df_est), use_container_width=True)
+        c3.plotly_chart(chart_alertas(df_est), width="stretch")
+        c4.plotly_chart(chart_histograma(df_est), width="stretch")
         # Summary table
         resumen = []
         for k, lab in MODULOS.items():
@@ -398,7 +398,7 @@ def main():
         r2.metric("En riesgo", int(filt["en_riesgo"].sum()))
         n1c = sum(1 for _,r in filt.iterrows() if any(r.get(f"niv_{k}")==1 for k in MODULOS))
         r3.metric("Nivel 1", n1c)
-        st.plotly_chart(chart_programa(df_est, sp), use_container_width=True)
+        st.plotly_chart(chart_programa(df_est, sp), width="stretch")
         stats = []
         for k, lab in MODULOS.items():
             c=f"mod_{k}"; nc=f"niv_{k}"

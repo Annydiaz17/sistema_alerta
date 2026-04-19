@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SaberAnalítica — Diagnóstico Saber Pro</title>
+  <meta name="description" content="Carga tu archivo Excel de resultados Saber Pro y obtén un diagnóstico institucional automático con gráficos, comparativos y recomendaciones." />
+
+  <!-- Fuente: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+  <!-- ── Barra de navegación ── -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">
+      <span class="brand-icon">📊</span>
+      <span class="brand-name">SaberAnalítica</span>
+    </div>
+    <div class="navbar-links" id="navbar-links">
+      <a href="#" class="nav-link" id="nav-inicio" onclick="app.navigate('landing')">Inicio</a>
+      <a href="#" class="nav-link" id="nav-cargar" onclick="app.navigate('upload')">Cargar archivo</a>
+      <a href="#" class="nav-link hidden" id="nav-dashboard" onclick="app.navigate('dashboard')">Dashboard</a>
+      <a href="#" class="nav-link" id="nav-historial" onclick="app.navigate('historial')">Historial</a>
+    </div>
+    <button class="btn-nuevo hidden" id="btn-nuevo-archivo" onclick="app.navigate('upload')">
+      + Nuevo archivo
+    </button>
+  </nav>
+
+  <!-- ── Contenedor principal de páginas ── -->
+  <main id="app-root">
+    <!-- Las páginas se renderizan aquí dinámicamente -->
+  </main>
+
+  <!-- ── Toast de notificaciones ── -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ── Modal global ── -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="ui.closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="ui.closeModal()" aria-label="Cerrar">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ── JavaScript modular ── -->
+  <script src="js/components/charts.js"></script>
+  <script src="js/components/filtros.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/pages/landing.js"></script>
+  <script src="js/pages/upload.js"></script>
+  <script src="js/pages/validacion.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+  <script src="js/pages/historial.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
