@@ -13,6 +13,5 @@ __pycache__/
 *.bat
 app.py
 c_diagnostico.py
-frontend/
 *.md
 *.xlsx
