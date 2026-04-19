@@ -19,6 +19,8 @@ from backend.config import (
     NOMBRES_COMPONENTES,
     COLORES_COMPONENTES,
     ORDEN_COMPONENTES,
+    UMBRAL_PUNTAJE_MODULO_BAJO,
+    UMBRAL_PUNTAJE_TOTAL_BAJO,
 )
 
 
@@ -234,6 +236,12 @@ def transformar(
     # ── Alertas críticas (anonimizadas) ─────────────────────────────────────
     alertas = _construir_alertas(df, mapeo, puntajes_detectados)
 
+    # ── Alertas multicriterio (4 reglas obligatorias) ──────────────────────
+    alertas_multi = _construir_alertas_multicriterio(df, mapeo, puntajes_detectados)
+
+    # ── Datos para gráficas Plotly (arrays individuales) ───────────────────
+    datos_plotly = _construir_datos_plotly(df, mapeo, puntajes_detectados)
+
     return {
         "df": df,                          # DataFrame enriquecido (para exportación)
         "meta": meta,
@@ -243,6 +251,8 @@ def transformar(
         "por_jornada": por_jornada,
         "estadisticas_limpieza": estadisticas_limpieza,
         "alertas_criticas": alertas,
+        "alertas_multicriterio": alertas_multi,
+        "datos_plotly": datos_plotly,
     }
 
 
@@ -282,3 +292,183 @@ def _construir_alertas(
     # Ordenar por puntaje total ascendente
     alertas.sort(key=lambda a: a["puntaje_total"] if a["puntaje_total"] is not None else 999)
     return alertas
+
+
+def _construir_datos_plotly(
+    df: pd.DataFrame,
+    mapeo: dict,
+    puntajes_detectados: list[str],
+) -> dict:
+    """
+    Construye arrays de valores individuales para las gráficas Plotly.
+    Cada array tiene un valor por estudiante (o null si no tiene dato).
+    """
+    col_programa = mapeo.get("programa")
+    col_jornada = mapeo.get("jornada")
+
+    puntajes_individuales = {}
+    for comp in puntajes_detectados:
+        col = mapeo.get(comp)
+        if col and col in df.columns:
+            serie = df[col].where(df[col].notna(), None)
+            puntajes_individuales[comp] = [
+                round(float(v), 1) if v is not None and pd.notna(v) else None
+                for v in serie
+            ]
+        else:
+            puntajes_individuales[comp] = []
+
+    puntaje_total = [
+        round(float(v), 2) if v is not None and pd.notna(v) else None
+        for v in df["_puntaje_total"]
+    ]
+
+    programas = []
+    if col_programa and col_programa in df.columns:
+        programas = [str(v) if pd.notna(v) else "Sin programa" for v in df[col_programa]]
+
+    jornadas = []
+    if col_jornada and col_jornada in df.columns:
+        jornadas = [str(v) if pd.notna(v) else "-" for v in df[col_jornada]]
+
+    ids_anon = [f"EST-{str(i + 1).zfill(4)}" for i in range(len(df))]
+
+    return {
+        "puntajes_individuales": puntajes_individuales,
+        "puntaje_total": puntaje_total,
+        "programas_por_estudiante": programas,
+        "jornadas_por_estudiante": jornadas,
+        "ids_anonimizados": ids_anon,
+    }
+
+
+def _construir_alertas_multicriterio(
+    df: pd.DataFrame,
+    mapeo: dict,
+    puntajes_detectados: list[str],
+) -> dict:
+    """
+    Construye alertas multicriterio con las 4 reglas obligatorias:
+      1. Puntaje de módulo < 120
+      2. Puntaje total < 130
+      3. Nivel 1 en Lectura Crítica
+      4. Nivel 1 en Razonamiento Cuantitativo
+
+    Retorna resumen + detalle por estudiante.
+    """
+    col_programa = mapeo.get("programa")
+    col_jornada = mapeo.get("jornada")
+    detalle = []
+
+    conteo_criterio = {
+        "puntaje_modulo_bajo": 0,
+        "puntaje_total_bajo": 0,
+        "nivel1_lectura": 0,
+        "nivel1_razonamiento": 0,
+    }
+    por_programa = {}
+
+    for idx, row in df.iterrows():
+        criterios = []
+        puntajes_est = {}
+        niveles_est = {}
+
+        # Recopilar puntajes y niveles del estudiante
+        for comp in puntajes_detectados:
+            col = mapeo.get(comp)
+            if col and col in df.columns:
+                val = row[col]
+                if pd.notna(val):
+                    puntajes_est[comp] = round(float(val), 1)
+                    # Regla 1: puntaje de módulo < 120
+                    if float(val) < UMBRAL_PUNTAJE_MODULO_BAJO:
+                        criterios.append({
+                            "codigo": "PUNTAJE_MODULO_BAJO",
+                            "modulo": NOMBRES_COMPONENTES[comp],
+                            "valor": round(float(val), 1),
+                        })
+
+            nivel_col = f"_nivel_{comp}"
+            if nivel_col in row.index and pd.notna(row[nivel_col]):
+                niveles_est[comp] = int(row[nivel_col])
+
+        # Regla 2: puntaje total < 130
+        pt = row.get("_puntaje_total")
+        if pt is not None and pd.notna(pt) and float(pt) < UMBRAL_PUNTAJE_TOTAL_BAJO:
+            criterios.append({
+                "codigo": "PUNTAJE_TOTAL_BAJO",
+                "modulo": "Puntaje Total",
+                "valor": round(float(pt), 1),
+            })
+
+        # Regla 3: Nivel 1 en Lectura Crítica
+        nivel_lc = row.get("_nivel_lectura_critica")
+        if nivel_lc is not None and pd.notna(nivel_lc) and int(nivel_lc) == 1:
+            criterios.append({
+                "codigo": "NIVEL1_LC",
+                "modulo": "Lectura Crítica",
+                "nivel": 1,
+            })
+
+        # Regla 4: Nivel 1 en Razonamiento Cuantitativo
+        nivel_rc = row.get("_nivel_razonamiento_cuantitativo")
+        if nivel_rc is not None and pd.notna(nivel_rc) and int(nivel_rc) == 1:
+            criterios.append({
+                "codigo": "NIVEL1_RC",
+                "modulo": "Razonamiento Cuantitativo",
+                "nivel": 1,
+            })
+
+        if not criterios:
+            continue
+
+        # Contabilizar
+        for c in criterios:
+            if c["codigo"] == "PUNTAJE_MODULO_BAJO":
+                conteo_criterio["puntaje_modulo_bajo"] += 1
+            elif c["codigo"] == "PUNTAJE_TOTAL_BAJO":
+                conteo_criterio["puntaje_total_bajo"] += 1
+            elif c["codigo"] == "NIVEL1_LC":
+                conteo_criterio["nivel1_lectura"] += 1
+            elif c["codigo"] == "NIVEL1_RC":
+                conteo_criterio["nivel1_razonamiento"] += 1
+
+        cantidad = len(criterios)
+        tipo_riesgo = "multiple" if cantidad >= 2 else "simple"
+        programa = str(row.get(col_programa, "Sin programa")) if col_programa else "Sin programa"
+        jornada = str(row.get(col_jornada, "-")) if col_jornada else "-"
+
+        # Acumular por programa
+        if programa not in por_programa:
+            por_programa[programa] = {"total": 0, "simple": 0, "multiple": 0}
+        por_programa[programa]["total"] += 1
+        por_programa[programa][tipo_riesgo] += 1
+
+        detalle.append({
+            "id_anonimizado": f"EST-{str(idx + 1).zfill(4)}",
+            "programa": programa,
+            "jornada": jornada,
+            "puntaje_total": round(float(pt), 1) if pt is not None and pd.notna(pt) else None,
+            "puntajes": puntajes_est,
+            "niveles": niveles_est,
+            "criterios_alerta": criterios,
+            "cantidad_alertas": cantidad,
+            "tipo_riesgo": tipo_riesgo,
+        })
+
+    detalle.sort(key=lambda a: a["cantidad_alertas"], reverse=True)
+
+    total_riesgo = len(detalle)
+    riesgo_simple = sum(1 for d in detalle if d["tipo_riesgo"] == "simple")
+    riesgo_multiple = sum(1 for d in detalle if d["tipo_riesgo"] == "multiple")
+
+    return {
+        "resumen": {
+            "total_en_riesgo": total_riesgo,
+            "riesgo_simple": riesgo_simple,
+            "riesgo_multiple": riesgo_multiple,
+            "por_criterio": conteo_criterio,
+            "por_programa": por_programa,
+        },
+        "detalle": detalle,
+    }

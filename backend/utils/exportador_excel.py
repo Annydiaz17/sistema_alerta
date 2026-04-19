@@ -173,3 +173,138 @@ def _hoja_alertas(wb, alertas, fmt_titulo, fmt_header, fmt_celda, fmt_alerta, fm
 
     if not alertas:
         ws.merge_range(fila, 0, fila, 4, "✅ No se identificaron alertas críticas.", fmt_celda)
+
+
+def exportar_excel_alertas_por_programa(modelo: dict) -> bytes:
+    """
+    Genera un Excel con:
+      - 1 sheet por programa (solo estudiantes en riesgo)
+      - 1 sheet Resumen con conteos por programa y tipo de riesgo
+    """
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+
+    # Estilos
+    fmt_titulo = workbook.add_format({
+        "bold": True, "font_size": 14, "font_color": "#1e3a5f",
+        "bg_color": "#dbeafe", "border": 1, "align": "center", "valign": "vcenter"
+    })
+    fmt_header = workbook.add_format({
+        "bold": True, "bg_color": "#1e3a5f", "font_color": "white",
+        "border": 1, "align": "center", "valign": "vcenter", "text_wrap": True
+    })
+    fmt_celda = workbook.add_format({"border": 1, "align": "center"})
+    fmt_celda_izq = workbook.add_format({"border": 1, "align": "left", "text_wrap": True})
+    fmt_numero = workbook.add_format({"border": 1, "align": "center", "num_format": "0.0"})
+    fmt_riesgo_simple = workbook.add_format({
+        "border": 1, "align": "center", "bg_color": "#fef9c3", "font_color": "#854d0e"
+    })
+    fmt_riesgo_multiple = workbook.add_format({
+        "border": 1, "align": "center", "bg_color": "#fee2e2", "font_color": "#991b1b", "bold": True
+    })
+
+    alertas_multi = modelo.get("alertas_multicriterio", {})
+    detalle = alertas_multi.get("detalle", [])
+    resumen_prog = alertas_multi.get("resumen", {}).get("por_programa", {})
+
+    # ── Agrupar alertas por programa ──
+    por_programa = {}
+    for est in detalle:
+        prog = est.get("programa", "Sin programa")
+        if prog not in por_programa:
+            por_programa[prog] = []
+        por_programa[prog].append(est)
+
+    # ── Headers de cada sheet ──
+    headers = [
+        "ID Anónimo", "Programa", "Jornada",
+        "Razon. Cuant.", "Lectura Crít.", "Comp. Ciud.", "Inglés", "Com. Escrita",
+        "Puntaje Total",
+        "Nivel RC", "Nivel LC", "Nivel CC", "Nivel Ing.", "Nivel CE",
+        "Razones de alerta", "Cant. alertas"
+    ]
+
+    comps_orden = ORDEN_COMPONENTES
+
+    # ── 1 sheet por programa ──
+    for prog, estudiantes in sorted(por_programa.items()):
+        nombre_sheet = prog[:31]  # Excel limita a 31 chars
+        ws = workbook.add_worksheet(nombre_sheet)
+        ws.set_column("A:A", 12)
+        ws.set_column("B:B", 25)
+        ws.set_column("C:C", 12)
+        ws.set_column("D:I", 12)
+        ws.set_column("J:N", 10)
+        ws.set_column("O:O", 50)
+        ws.set_column("P:P", 10)
+
+        ws.merge_range(0, 0, 0, len(headers) - 1,
+                       f"Alertas — {prog} ({len(estudiantes)} estudiantes en riesgo)", fmt_titulo)
+        ws.set_row(0, 30)
+
+        fila = 2
+        for col_i, h in enumerate(headers):
+            ws.write(fila, col_i, h, fmt_header)
+        fila += 1
+
+        for est in estudiantes:
+            es_multiple = est["tipo_riesgo"] == "multiple"
+            fmt_row = fmt_riesgo_multiple if es_multiple else fmt_riesgo_simple
+            fmt_num_row = fmt_row  # Usar el mismo fondo para números
+
+            ws.write(fila, 0, est["id_anonimizado"], fmt_row)
+            ws.write(fila, 1, est["programa"], fmt_row)
+            ws.write(fila, 2, est["jornada"], fmt_row)
+
+            # Puntajes por módulo
+            for col_i, comp in enumerate(comps_orden, start=3):
+                val = est.get("puntajes", {}).get(comp)
+                ws.write(fila, col_i, val if val is not None else "-", fmt_num_row)
+
+            # Puntaje total
+            pt = est.get("puntaje_total")
+            ws.write(fila, 8, pt if pt is not None else "-", fmt_num_row)
+
+            # Niveles por módulo
+            for col_i, comp in enumerate(comps_orden, start=9):
+                nivel = est.get("niveles", {}).get(comp)
+                ws.write(fila, col_i, f"N{nivel}" if nivel is not None else "-", fmt_row)
+
+            # Razones de alerta
+            razones = [
+                f"{c['modulo']}: {c.get('valor', '')} {c.get('nivel', '')}"
+                for c in est.get("criterios_alerta", [])
+            ]
+            ws.write(fila, 14, "; ".join(razones), fmt_celda_izq)
+            ws.write(fila, 15, est["cantidad_alertas"], fmt_row)
+            fila += 1
+
+    # ── Sheet de Resumen ──
+    ws_r = workbook.add_worksheet("Resumen")
+    ws_r.set_column("A:A", 30)
+    ws_r.set_column("B:D", 16)
+
+    ws_r.merge_range(0, 0, 0, 3, "Resumen de alertas por programa", fmt_titulo)
+    ws_r.set_row(0, 30)
+
+    fila = 2
+    for col_i, h in enumerate(["Programa", "Total en riesgo", "Riesgo simple", "Riesgo múltiple"]):
+        ws_r.write(fila, col_i, h, fmt_header)
+    fila += 1
+
+    for prog, datos in sorted(resumen_prog.items()):
+        ws_r.write(fila, 0, prog, fmt_celda)
+        ws_r.write(fila, 1, datos["total"], fmt_celda)
+        ws_r.write(fila, 2, datos["simple"], fmt_riesgo_simple)
+        ws_r.write(fila, 3, datos["multiple"], fmt_riesgo_multiple)
+        fila += 1
+
+    # Totales
+    resumen_total = alertas_multi.get("resumen", {})
+    ws_r.write(fila, 0, "TOTAL", fmt_header)
+    ws_r.write(fila, 1, resumen_total.get("total_en_riesgo", 0), fmt_header)
+    ws_r.write(fila, 2, resumen_total.get("riesgo_simple", 0), fmt_header)
+    ws_r.write(fila, 3, resumen_total.get("riesgo_multiple", 0), fmt_header)
+
+    workbook.close()
+    return output.getvalue()

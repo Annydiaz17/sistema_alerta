@@ -173,6 +173,12 @@ UMBRAL_DIFERENCIA_PROG = 15   # Diferencia > 15 pts entre programas → insight
 UMBRAL_DIFERENCIA_JORN = 20   # Diferencia > 20 pts entre jornadas → insight
 
 # ──────────────────────────────────────────────────────────────────────────────
+# ALERTAS MULTICRITERIO
+# ──────────────────────────────────────────────────────────────────────────────
+UMBRAL_PUNTAJE_MODULO_BAJO = 120   # Puntaje de cualquier módulo < 120 → alerta
+UMBRAL_PUNTAJE_TOTAL_BAJO = 130    # Promedio total del estudiante < 130 → alerta
+
+# ──────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN DEL SERVIDOR
 # ──────────────────────────────────────────────────────────────────────────────
 MAX_FILE_SIZE_MB = 10

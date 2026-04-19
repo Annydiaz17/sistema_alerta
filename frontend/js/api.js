@@ -86,6 +86,20 @@ const api = {
       return false;
     }
   },
+
+  /**
+   * Descarga un archivo genérico del backend.
+   * @param {string} ruta — ruta relativa del endpoint (ej: /api/exportar/excel-alertas/123)
+   * @param {string} nombre — nombre para el archivo descargado
+   */
+  async descargarArchivo(ruta, nombre) {
+    const response = await fetch(`${API_BASE}${ruta}`);
+    if (!response.ok) {
+      throw new ApiError('No se pudo descargar el archivo. Intenta de nuevo.');
+    }
+    const blob = await response.blob();
+    _descargarBlob(blob, nombre);
+  },
 };
 
 class ApiError extends Error {

@@ -91,6 +91,8 @@ def _serializar_resultado(modelo: dict, diagnostico: dict, resumen_val: dict, no
         "por_programa": modelo.get("por_programa", {}),
         "por_jornada": modelo.get("por_jornada", {}),
         "alertas_criticas": modelo.get("alertas_criticas", []),
+        "alertas_multicriterio": modelo.get("alertas_multicriterio", {}),
+        "datos_plotly": modelo.get("datos_plotly", {}),
         "diagnostico": {
             "confianza": diagnostico.get("confianza", {}),
             "fortalezas": diagnostico.get("fortalezas", []),
@@ -286,6 +288,30 @@ def exportar_pdf_endpoint(session_id: str):
     except Exception as e:
         logger.error(f"Error al exportar PDF: {e}")
         raise HTTPException(status_code=500, detail={"mensaje_usuario": "Error al generar el PDF."})
+
+
+@app.get("/api/exportar/excel-alertas/{session_id}")
+def exportar_excel_alertas_endpoint(session_id: str):
+    """Genera y descarga el Excel de alertas por programa."""
+    sesion = _sesiones.get(session_id)
+    if not sesion:
+        raise HTTPException(
+            status_code=404,
+            detail={"mensaje_usuario": "Sesión no encontrada. Por favor, vuelve a procesar el archivo."}
+        )
+
+    try:
+        from backend.utils.exportador_excel import exportar_excel_alertas_por_programa
+        datos = exportar_excel_alertas_por_programa(sesion["modelo"])
+        nombre = f"alertas_por_programa_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        return StreamingResponse(
+            io.BytesIO(datos),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={nombre}"}
+        )
+    except Exception as e:
+        logger.error(f"Error al exportar Excel de alertas: {e}")
+        raise HTTPException(status_code=500, detail={"mensaje_usuario": "Error al generar el Excel de alertas."})
 
 
 @app.get("/api/plantilla")

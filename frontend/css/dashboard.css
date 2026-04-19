@@ -316,3 +316,120 @@
 .nivel-chip.n2 { background: var(--nivel-2-bg); color: var(--nivel-2); }
 .nivel-chip.n3 { background: var(--nivel-3-bg); color: var(--nivel-3); }
 .nivel-chip.n4 { background: var(--nivel-4-bg); color: var(--nivel-4); }
+
+/* ── Plotly containers ───────────────────────────────────────────────────── */
+.plotly-container {
+  width: 100%;
+  min-height: 300px;
+  border-radius: var(--radius-md);
+}
+
+.plotly-container .modebar {
+  right: 10px !important;
+}
+
+.plotly-tall {
+  min-height: 400px;
+}
+
+/* ── Badges de riesgo ────────────────────────────────────────────────────── */
+.badge-riesgo-simple {
+  background: #fef9c3;
+  color: #854d0e;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.badge-riesgo-multiple {
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.alertas-resumen-badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Alertas coloreadas por tipo ──────────────────────────────────────────── */
+.alerta-row.alerta-multiple {
+  border-left-color: #dc2626;
+  background: #fef2f220;
+}
+
+.alerta-row.alerta-simple {
+  border-left-color: #f59e0b;
+  background: #fffbeb20;
+}
+
+/* ── Selector de componente ──────────────────────────────────────────────── */
+.comp-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.comp-selector {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.comp-selector:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+/* ── Nivel 1 warning en comp card ────────────────────────────────────────── */
+.comp-card-alerta {
+  border: 2px solid #ef4444 !important;
+  box-shadow: 0 0 0 2px #fef2f2;
+}
+
+.comp-n1-warning {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-top: var(--space-2);
+  text-align: center;
+}
+
+/* ── Grid 4 ─────────────────────────────────────────────────────────────── */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .plotly-tall { min-height: 300px; }
+}
+
+@media (max-width: 600px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .comp-selector-bar { flex-direction: column; align-items: flex-start; }
+}
+
